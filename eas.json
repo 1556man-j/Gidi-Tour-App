@@ -1,0 +1,19 @@
+{
+  "cli": { "version": ">= 12.0.0" },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+       "android": {
+    "gradleCommand": ":app:assembleRelease -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease"
+  },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://www.giditour.com",
+        "EXPO_PUBLIC_SITE_URL": "https://www.giditour.com",
+        "EXPO_PUBLIC_SANITY_PROJECT_ID": "hxcb2tkw",
+        "EXPO_PUBLIC_SANITY_DATASET": "production",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_xxxx",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "723602664885-oup3gscvmj2telfml235088g3rfvih83.apps.googleusercontent.com"
+      }
+    }
+  }
+}
