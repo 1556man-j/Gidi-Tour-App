@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { Glass } from '@/components/ui/Glass';
@@ -15,11 +16,11 @@ import { SaveButton } from './SaveButton';
 const open = (slug: string) => router.push(`/tours/${slug}`);
 
 /** Tall feature card used in carousels. */
-export function TourCard({ tour, width = 276, height = 380 }: { tour: Tour; width?: number; height?: number }) {
+function TourCardBase({ tour, width = 276, height = 380 }: { tour: Tour; width?: number; height?: number }) {
   const { money } = useBootstrap();
   return (
     <PressableScale onPress={() => open(tour.slug.current)} style={[{ width, height, borderRadius: radius.xl, overflow: 'hidden', backgroundColor: colors.sand }, shadow.card]}>
-      <AppImage img={tour.image} width={800} style={StyleSheet.absoluteFill} />
+      <AppImage img={tour.image} width={600} style={StyleSheet.absoluteFill} />
       <LinearGradient colors={['rgba(8,14,5,0.15)', 'transparent', 'rgba(8,14,5,0.88)']} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
       <View style={styles.top}>
         {tour.category ? (
@@ -57,7 +58,7 @@ export function TourCard({ tour, width = 276, height = 380 }: { tour: Tour; widt
 }
 
 /** Compact horizontal row used in lists and search. */
-export function TourRow({ tour }: { tour: Tour }) {
+function TourRowBase({ tour }: { tour: Tour }) {
   const { money } = useBootstrap();
   return (
     <PressableScale onPress={() => open(tour.slug.current)} style={[{ flexDirection: 'row', backgroundColor: colors.white, borderRadius: radius.lg, padding: 10, gap: 14 }, shadow.card]}>
@@ -79,6 +80,9 @@ export function TourRow({ tour }: { tour: Tour }) {
     </PressableScale>
   );
 }
+
+export const TourCard = memo(TourCardBase);
+export const TourRow = memo(TourRowBase);
 
 const styles = StyleSheet.create({
   top: { position: 'absolute', top: 14, left: 14, right: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

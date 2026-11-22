@@ -13,7 +13,7 @@ export function ArticleCard({ article, big }: { article: Article; big?: boolean 
   if (big) {
     return (
       <PressableScale onPress={go} style={[{ height: 360, borderRadius: radius.xl, overflow: 'hidden', backgroundColor: colors.sand }, shadow.card]}>
-        <AppImage img={article.image} width={1000} style={StyleSheet.absoluteFill} />
+        <AppImage img={article.image} width={700} style={StyleSheet.absoluteFill} />
         <LinearGradient colors={['transparent', 'rgba(8,14,5,0.9)']} locations={[0.25, 1]} style={StyleSheet.absoluteFill} />
         <View style={{ position: 'absolute', left: 20, right: 20, bottom: 20, gap: 8 }}>
           <View style={{ alignSelf: 'flex-start', backgroundColor: colors.orange, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 }}>

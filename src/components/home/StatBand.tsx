@@ -7,13 +7,13 @@ import { colors, fonts, radius, shadow } from '@/theme';
 
 // Photos from your own assets folder. Swap these file names for any images in assets/images.
 const PHOTOS: Img[] = [
-  { local: require('../../../assets/images/avatar-7.webp') },
-  { local: require('../../../assets/images/avatar-1.webp') },
-  { local: require('../../../assets/images/avatar-2.webp') },
-  { local: require('../../../assets/images/avatar-3.webp') },
-  { local: require('../../../assets/images/avatar-4.webp') },
-  { local: require('../../../assets/images/avatar-5.webp') },
-  { local: require('../../../assets/images/avatar-6.webp') },
+  { local: require('../../../assets/images/avatar-7-sm.webp') },
+  { local: require('../../../assets/images/avatar-1-sm.webp') },
+  { local: require('../../../assets/images/avatar-2-sm.webp') },
+  { local: require('../../../assets/images/avatar-3-sm.webp') },
+  { local: require('../../../assets/images/avatar-4-sm.webp') },
+  { local: require('../../../assets/images/avatar-5-sm.webp') },
+  { local: require('../../../assets/images/avatar-6-sm.webp') },
 ];
 
 const fmt = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');

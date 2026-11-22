@@ -10,7 +10,7 @@ import { Text } from './ui/Text';
 export function DestinationCard({ dest, width = 210, height = 290, wide }: { dest: Destination; width?: number | `${number}%`; height?: number; wide?: boolean }) {
   return (
     <PressableScale onPress={() => router.push(`/destinations/${dest.slug.current}`)} style={[{ width, height, borderRadius: radius.xl, overflow: 'hidden', backgroundColor: colors.sand }, shadow.card]}>
-      <AppImage img={dest.heroImage} width={800} style={StyleSheet.absoluteFill} />
+      <AppImage img={dest.heroImage} width={600} style={StyleSheet.absoluteFill} />
       <LinearGradient colors={['transparent', 'rgba(8,14,5,0.85)']} locations={[0.35, 1]} style={StyleSheet.absoluteFill} />
       <View style={{ position: 'absolute', left: 18, right: 18, bottom: 18 }}>
         {dest.region ? <Text v="caption" color="rgba(255,255,255,0.75)">{dest.region.toUpperCase()}</Text> : null}

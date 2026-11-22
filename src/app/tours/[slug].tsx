@@ -31,13 +31,13 @@ const HERO_H = 440;
 
 function Fact({ icon, label, value, delay }: { icon: React.ReactNode; label: string; value: string; delay: number }) {
   return (
-    <Animated.View entering={FadeInDown.delay(delay).springify().damping(16)} style={[{ flex: 1, backgroundColor: colors.white, borderRadius: radius.lg, padding: 14, gap: 8 }, shadow.card]}>
+    <View style={[{ flex: 1, backgroundColor: colors.white, borderRadius: radius.lg, padding: 14, gap: 8 }, shadow.card]}>
       <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' }}>{icon}</View>
       <View>
         <Text v="caption" color={colors.faint}>{label}</Text>
         <Text v="bodyStrong" numberOfLines={1} style={{ marginTop: 2 }}>{value}</Text>
       </View>
-    </Animated.View>
+    </View>
   );
 }
 
@@ -54,8 +54,16 @@ export default function TourDetail() {
   const requireAuth = useRequireAuth();
   const addTour = useBookingDraft((s) => s.addTour);
   const { data: tour, isLoading } = useQuery({ queryKey: ['tour', slug], queryFn: () => getTour(slug!), enabled: !!slug });
-  const { data: reviews } = useQuery({ queryKey: ['reviews', slug], queryFn: () => getReviewsForTour(slug!), enabled: !!slug });
-  const { data: related } = useQuery({ queryKey: ['related', slug, tour?.countrySlug], queryFn: () => getRelatedTours(tour!.countrySlug, slug!), enabled: !!tour });
+  // Reviews and related tours load a moment after the main content, so the page responds first.
+  const [late, setLate] = useState(false);
+  useEffect(() => {
+    if (!tour) return;
+    let t: ReturnType<typeof setTimeout>;
+    t = setTimeout(() => setLate(true), 450);
+    return () => clearTimeout(t);
+  }, [tour]);
+  const { data: reviews } = useQuery({ queryKey: ['reviews', slug], queryFn: () => getReviewsForTour(slug!), enabled: !!slug && late });
+  const { data: related } = useQuery({ queryKey: ['related', slug, tour?.countrySlug], queryFn: () => getRelatedTours(tour!.countrySlug, slug!), enabled: !!tour && late });
 
   const y = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler((e) => { y.value = e.contentOffset.y; });
@@ -114,7 +122,8 @@ export default function TourDetail() {
               horizontal pagingEnabled showsHorizontalScrollIndicator={false}
               keyExtractor={(_, i) => String(i)}
               onMomentumScrollEnd={onPage}
-              renderItem={({ item }) => <AppImage img={item} width={1200} style={{ width: W, height: HERO_H + 80 }} />}
+              initialNumToRender={1} maxToRenderPerBatch={1} windowSize={3} removeClippedSubviews
+              renderItem={({ item }) => <AppImage img={item} width={900} style={{ width: W, height: HERO_H + 80 }} />}
             />
           </Animated.View>
           <LinearGradient pointerEvents="none" colors={['rgba(8,14,5,0.45)', 'transparent', 'rgba(247,243,234,0)']} locations={[0, 0.4, 1]} style={StyleSheet.absoluteFill} />
@@ -142,21 +151,21 @@ export default function TourDetail() {
           </View>
 
           {tour.summary ? (
-            <Animated.View entering={FadeInDown.delay(300).springify()} style={{ marginTop: 26 }}>
+            <View style={{ marginTop: 26 }}>
               <Heading before="About this" accent="experience" size={22} />
               <Text v="body" color="rgba(18,32,13,0.8)" style={{ marginTop: 10, fontSize: 16, lineHeight: 26 }}>{tour.summary}</Text>
-            </Animated.View>
+            </View>
           ) : null}
 
           {tour.highlights?.length ? (
             <View style={{ marginTop: 28 }}>
               <Heading before="Trip" accent="highlights" size={22} />
               <View style={{ marginTop: 12, gap: 10 }}>
-                {tour.highlights.map((h, i) => (
-                  <Animated.View key={h} entering={FadeInDown.delay(380 + i * 70).springify()} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.white, borderRadius: radius.md, padding: 14 }}>
+                {tour.highlights.map((h) => (
+                  <View key={h} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.white, borderRadius: radius.md, padding: 14 }}>
                     <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' }}><Check size={15} color={colors.white} strokeWidth={3} /></View>
                     <Text v="bodyStrong" style={{ flex: 1 }}>{h}</Text>
-                  </Animated.View>
+                  </View>
                 ))}
               </View>
             </View>
@@ -180,14 +189,14 @@ export default function TourDetail() {
         {reviews?.length ? (
           <View style={{ marginTop: 32 }}>
             <SectionHeader before="What travellers" accent="say" />
-            <FlatList horizontal data={reviews} keyExtractor={(r) => r._id} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 14, paddingBottom: 16 }} renderItem={({ item }) => <ReviewCard review={item} width={W * 0.78} />} />
+            <FlatList horizontal initialNumToRender={2} windowSize={3} data={reviews} keyExtractor={(r) => r._id} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 14, paddingBottom: 16 }} renderItem={({ item }) => <ReviewCard review={item} width={W * 0.78} />} />
           </View>
         ) : null}
 
         {related?.length ? (
           <View style={{ marginTop: 16 }}>
             <SectionHeader before="More in" accent={tour.country} />
-            <FlatList horizontal data={related} keyExtractor={(r) => r._id} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 14, paddingBottom: 16 }} renderItem={({ item }) => <TourCard tour={item} width={236} height={320} />} />
+            <FlatList horizontal initialNumToRender={2} windowSize={3} data={related} keyExtractor={(r) => r._id} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 14, paddingBottom: 16 }} renderItem={({ item }) => <TourCard tour={item} width={236} height={320} />} />
           </View>
         ) : null}
       </Animated.ScrollView>

@@ -8,13 +8,15 @@ import { CartButton } from '@/components/CartButton';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { useAuth } from '@/stores/auth';
-import { initials } from '@/lib/format';
+import { Avatar } from '@/components/account/Avatar';
+import { useBootstrap } from '@/hooks/useBootstrap';
 import { colors, fonts } from '@/theme';
 
 export function TopBar({ scrollY }: { scrollY: SharedValue<number> }) {
   const insets = useSafeAreaInsets();
   const user = useAuth((s) => s.user);
   const status = useAuth((s) => s.status);
+  const { customer } = useBootstrap();
   const bg = useAnimatedStyle(() => ({ opacity: interpolate(scrollY.value, [120, 260], [0, 1], Extrapolation.CLAMP) }));
   return (
     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20 }} pointerEvents="box-none">
@@ -29,7 +31,7 @@ export function TopBar({ scrollY }: { scrollY: SharedValue<number> }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <CartButton />
           <PressableScale onPress={() => router.push(status === 'authed' ? '/account' : '/login')} style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' }}>
-            {status === 'authed' ? <Text style={{ fontFamily: fonts.bold, fontSize: 15 }} color={colors.white}>{initials(user?.name, user?.email)}</Text> : <User size={20} color={colors.white} />}
+            {status === 'authed' ? <Avatar uri={customer?.avatarUrl} name={customer?.name ?? user?.name} email={user?.email} size={46} /> : <User size={20} color={colors.white} />}
           </PressableScale>
         </View>
       </View>

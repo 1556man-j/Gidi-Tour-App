@@ -75,3 +75,14 @@ export const getOpenPositions = (): Promise<JobPosition[]> =>
 
 export const getSiteSettings = (): Promise<SiteSettings | null> =>
   env.mock ? wait(mock.mockSettings) : groq<SiteSettings | null>(`*[_type == "siteSettings"][0]`);
+
+/** Home only needs a handful of each, so ask Sanity for just those instead of everything. */
+const TOUR_CARD = `_id, title, slug, country, countrySlug, category, image, duration, groupSize, price, rating, reviewCount, summary, popular`;
+export const getHomeTours = (): Promise<Tour[]> =>
+  env.mock ? wait(mock.mockTours.slice(0, 8)) : groq<Tour[]>(`*[_type == "tour"] | order(popular desc, reviewCount desc)[0...8]{ ${TOUR_CARD} }`);
+export const getHomeDestinations = (): Promise<Destination[]> =>
+  env.mock ? wait(mock.mockDestinations.slice(0, 8)) : groq<Destination[]>(`*[_type == "destination"] | order(name asc)[0...8]{ _id, name, slug, region, heroImage, intro, bestTime, duration, priceFrom }`);
+export const getHomeArticles = (): Promise<Article[]> =>
+  env.mock ? wait(mock.mockArticles.slice(0, 2)) : groq<Article[]>(`*[_type == "article"] | order(date desc)[0...2]{ _id, title, slug, image, excerpt, category, destination, readTime, date, featured }`);
+export const getHomeMagazine = (): Promise<StoreProduct[]> =>
+  env.mock ? wait(mock.mockProducts.filter((p) => p.category === 'magazine').slice(0, 2)) : groq<StoreProduct[]>(`*[_type == "storeProduct" && category == "magazine"] | order(popular desc)[0...2]{ _id, category, title, slug, image, popular }`);

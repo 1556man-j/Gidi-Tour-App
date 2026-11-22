@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { RefreshControl, TextInput, View } from 'react-native';
+import { RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +10,6 @@ import { Chip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Heading } from '@/components/ui/Heading';
 import { PressableScale } from '@/components/ui/PressableScale';
-import { Reveal } from '@/components/ui/Reveal';
 import { Sheet } from '@/components/ui/Sheet';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Text } from '@/components/ui/Text';
@@ -86,36 +85,42 @@ export default function ToursTab() {
         </View>
       </Animated.View>
 
-      <Animated.ScrollView
+      <Animated.FlatList
+        data={isLoading ? [] : list}
+        keyExtractor={(t) => t._id}
         onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: TAB_PAD + insets.bottom, paddingTop: 6 }}
+        initialNumToRender={5}
+        maxToRenderPerBatch={4}
+        updateCellsBatchingPeriod={60}
+        windowSize={5}
+        removeClippedSubviews
+        contentContainerStyle={{ paddingBottom: TAB_PAD + insets.bottom, paddingTop: 6, paddingHorizontal: 20, gap: 14 }}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { refetch(); }} tintColor={colors.green} />}
-      >
-        <Animated.ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 8, paddingVertical: 6 }}>
-          {categories.map((c) => <Chip key={c} label={c} active={category === c} onPress={() => setCategory(c)} />)}
-        </Animated.ScrollView>
-        <Animated.ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 8, paddingVertical: 6 }}>
-          {countries.map((c) => <Chip key={c} tone="green" label={c === 'All' ? 'All countries' : c} active={country === c} onPress={() => setCountry(c)} />)}
-        </Animated.ScrollView>
-
-        <View style={{ paddingHorizontal: 20, paddingTop: 12, gap: 14 }}>
-          {isLoading ? (
-            [0, 1, 2, 3].map((i) => <Skeleton key={i} h={148} r={24} />)
-          ) : list.length === 0 ? (
-            <EmptyState icon={<Compass size={40} color={colors.green} />} title="No tours match" body="Try another country or clear your filters." action="Clear filters" onAction={() => { setQ(''); setCategory('All'); setCountry('All'); }} />
+        ListHeaderComponent={
+          <View style={{ marginHorizontal: -20 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 8, paddingVertical: 6 }}>
+              {categories.map((c) => <Chip key={c} label={c} active={category === c} onPress={() => setCategory(c)} />)}
+            </ScrollView>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 8, paddingVertical: 6 }}>
+              {countries.map((c) => <Chip key={c} tone="green" label={c === 'All' ? 'All countries' : c} active={country === c} onPress={() => setCountry(c)} />)}
+            </ScrollView>
+            {!isLoading && list.length > 0 ? (
+              <Text v="small" color={colors.muted} style={{ paddingHorizontal: 20, paddingTop: 12 }}>{list.length} {list.length === 1 ? 'tour' : 'tours'} · {SORTS.find((s) => s.id === sort)?.label}</Text>
+            ) : null}
+          </View>
+        }
+        ListEmptyComponent={
+          isLoading ? (
+            <View style={{ gap: 14, paddingTop: 12 }}>{[0, 1, 2, 3].map((i) => <Skeleton key={i} h={148} r={24} />)}</View>
           ) : (
-            <>
-              <Text v="small" color={colors.muted}>{list.length} {list.length === 1 ? 'tour' : 'tours'} · {SORTS.find((s) => s.id === sort)?.label}</Text>
-              {list.map((t, i) => (
-                <Reveal key={t._id} index={i}><TourRow tour={t} /></Reveal>
-              ))}
-            </>
-          )}
-        </View>
-      </Animated.ScrollView>
+            <EmptyState icon={<Compass size={40} color={colors.green} />} title="No tours match" body="Try another country or clear your filters." action="Clear filters" onAction={() => { setQ(''); setCategory('All'); setCountry('All'); }} />
+          )
+        }
+        renderItem={({ item }) => <TourRow tour={item} />}
+      />
 
       <Sheet visible={sortOpen} onClose={() => setSortOpen(false)} title="Sort by">
         {SORTS.map((s) => (
