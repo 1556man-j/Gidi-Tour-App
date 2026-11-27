@@ -1,10 +1,10 @@
 import { goBack } from '@/lib/nav';
 import { View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import * as WebBrowser from 'expo-web-browser';
 import Animated from 'react-native-reanimated';
-import { Download, LifeBuoy } from 'lucide-react-native';
+import { Download, LifeBuoy, MessageCircle } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
 import { Header } from '@/components/ui/Header';
 import { Reveal } from '@/components/ui/Reveal';
@@ -15,7 +15,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { useBootstrap } from '@/hooks/useBootstrap';
 import { addOnOptions, tripTypes } from '@/lib/data';
 import { formatDate } from '@/lib/format';
+import { openBookingChat } from '@/lib/chat';
 import { fetchEntryDetail } from '@/lib/services';
+import { toast } from '@/components/ui/Toast';
 import { useAuth } from '@/stores/auth';
 import { colors, fonts, radius, shadow } from '@/theme';
 
@@ -38,6 +40,11 @@ export default function BookingDetail() {
   const status = useAuth((s) => s.status);
   const { money } = useBootstrap();
   const q = useQuery({ queryKey: ['entry', id], queryFn: () => fetchEntryDetail(id), enabled: status === 'authed' && !!id });
+  const chat = useMutation({
+    mutationFn: () => openBookingChat(id),
+    onSuccess: (c) => router.push(`/messages/${c.id}` as never),
+    onError: (e) => toast.error((e as Error).message),
+  });
   if (status === 'guest') return <Redirect href={{ pathname: '/login', params: { redirectTo: `/account/bookings/${id}` } }} />;
   const b = q.data?.booking; const o = q.data?.storeOrder;
   return (
@@ -58,6 +65,15 @@ export default function BookingDetail() {
                 <Text v="small" color={colors.muted}>Placed {formatDate((b ?? o)!.createdAt)}</Text>
               </Card>
             </Reveal>
+            {b && b.paymentStatus === 'paid' ? (
+              <Reveal index={1}>
+                <Card>
+                  <Text v="bodyStrong">Chat with your guide</Text>
+                  <Text v="small" color={colors.muted} style={{ marginTop: 4, marginBottom: 12 }}>Ask about meeting points, timings and what to bring. Payments only happen through Gidi Tour.</Text>
+                  <Button title="Message your guide" size="md" loading={chat.isPending} icon={<MessageCircle size={18} color={colors.white} />} onPress={() => chat.mutate()} />
+                </Card>
+              </Reveal>
+            ) : null}
             {b ? (
               <>
                 <Reveal index={1}>

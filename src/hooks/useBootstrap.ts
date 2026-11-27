@@ -11,13 +11,16 @@ const FALLBACK: Bootstrap = {
 /** Country, currency, exchange rate and payment provider (decided on the server, same as the website). */
 export function useBootstrap() {
   const status = useAuth((s) => s.status);
+  const userId = useAuth((s) => s.user?.id ?? null);
   const query = useQuery({
-    queryKey: ['bootstrap', status === 'authed'],
+    queryKey: ['bootstrap', status === 'authed' ? userId : 'guest'],
     queryFn: () => fetchBootstrap(status === 'authed'),
     enabled: status !== 'loading',
     staleTime: 1000 * 60 * 30,
   });
-  const data = query.data ?? FALLBACK;
+  const raw = query.data ?? FALLBACK;
+  // Never show a profile that belongs to someone other than the person signed in.
+  const data = raw.customer && userId && raw.customer._id !== userId ? { ...raw, customer: null } : raw;
   return {
     ...data,
     ready: !!query.data,

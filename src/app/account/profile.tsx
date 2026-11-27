@@ -39,17 +39,20 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [avatar, setAvatar] = useState<string | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const loaded = !!customer && loadedFor === customer._id;
 
   useEffect(() => {
-    if (!customer || loaded) return;
-    setLoaded(true);
+    if (!customer || loadedFor === customer._id) return;
+    setLoadedFor(customer._id);
+    setAvatar(undefined);
+    setErrs({});
     setF({
       name: customer.name ?? '', nationality: customer.nationality ?? '', dateOfBirth: customer.dateOfBirth ?? '', dial: customer.phoneDialCode ?? '', phone: customer.phoneNumber ?? '',
       line1: customer.address?.line1 ?? '', line2: customer.address?.line2 ?? '', city: customer.address?.city ?? '', region: customer.address?.region ?? '', postalCode: customer.address?.postalCode ?? '', country: customer.address?.country ?? '',
       ecName: customer.emergencyContact?.name ?? '', ecRel: customer.emergencyContact?.relationship ?? '', ecPhone: customer.emergencyContact?.phone ?? '', notes: customer.travelNotes ?? '',
     });
-  }, [customer, loaded]);
+  }, [customer, loadedFor]);
 
   if (status === 'guest') return <Redirect href={{ pathname: '/login', params: { redirectTo: '/account/profile' } }} />;
   const set = (k: string) => (v: string) => { setF((p) => ({ ...p, [k]: v })); if (errs[k]) setErrs((e) => ({ ...e, [k]: '' })); };

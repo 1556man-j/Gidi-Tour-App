@@ -69,8 +69,9 @@ function Card({ e }: { e: AccountEntry }) {
 
 export default function Bookings() {
   const status = useAuth((s) => s.status);
+  const uid = useAuth((s) => s.user?.id ?? null);
   const [seg, setSeg] = useState(0);
-  const q = useQuery({ queryKey: ['entries'], queryFn: fetchAccountEntries, enabled: status === 'authed' });
+  const q = useQuery({ queryKey: ['entries', uid], queryFn: fetchAccountEntries, enabled: status === 'authed' });
   if (status === 'guest') return <Redirect href={{ pathname: '/login', params: { redirectTo: '/account/bookings' } }} />;
   const list = (q.data ?? []).filter((e) => seg === 0 || (seg === 1 ? e.kind === 'tour' : e.kind === 'store'));
   return (

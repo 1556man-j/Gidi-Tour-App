@@ -5,7 +5,7 @@ import * as WebBrowser from 'expo-web-browser';
 import Constants from 'expo-constants';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BookOpen, Briefcase, CircleHelp, FileText, Heart, Info, LogOut, Mail, Newspaper, Receipt, Shield, Cookie, Ticket, UserRound, Luggage } from 'lucide-react-native';
+import { BookOpen, Briefcase, CircleHelp, FileText, Heart, Info, LogOut, Mail, Newspaper, Receipt, Shield, Cookie, Ticket, UserRound, Luggage, MessageCircle, ArrowLeftRight, Map as MapIcon, Clock, Trash2 } from 'lucide-react-native';
 import { Avatar } from '@/components/account/Avatar';
 import { MenuGroup, MenuRow } from '@/components/account/MenuRow';
 import { Button } from '@/components/ui/Button';
@@ -16,6 +16,8 @@ import { toast } from '@/components/ui/Toast';
 import { useBootstrap } from '@/hooks/useBootstrap';
 import { useCountUp } from '@/hooks/useCountUp';
 import { env } from '@/lib/env';
+import { useGuide } from '@/hooks/useGuide';
+import { fetchChats } from '@/lib/chat';
 import { fetchAccountEntries } from '@/lib/services';
 import { useAuth } from '@/stores/auth';
 import { usePrefs } from '@/stores/prefs';
@@ -41,8 +43,14 @@ export default function Account() {
   const saved = usePrefs((s) => s.saved.length);
   const qc = useQueryClient();
   const { customer } = useBootstrap();
+  const uid = user?.id ?? null;
+  const guide = useGuide();
+  const setView = usePrefs((s) => s.setGuideView);
   const authed = status === 'authed';
-  const entries = useQuery({ queryKey: ['entries'], queryFn: fetchAccountEntries, enabled: authed });
+  const entries = useQuery({ queryKey: ['entries', uid], queryFn: fetchAccountEntries, enabled: authed });
+  const chats = useQuery({ queryKey: ['chats', uid], queryFn: fetchChats, enabled: authed, refetchInterval: 30000 });
+  const unread = [...(chats.data?.trips ?? []), ...(chats.data?.inbox ?? [])].reduce((n, c) => n + c.unread, 0);
+  const hasChats = !!chats.data && (chats.data.isGuide || chats.data.trips.length > 0);
   const go = (p: string) => () => router.push(p as never);
   const name = customer?.name ?? user?.name;
   const email = customer?.email ?? user?.email;
@@ -88,13 +96,25 @@ export default function Account() {
           <Reveal index={2}>
             <MenuGroup title="My trips">
               <MenuRow icon={<Ticket size={18} color={colors.greenDeep} />} label="My bookings" onPress={go('/account/bookings')} />
+              {hasChats ? <MenuRow icon={<MessageCircle size={18} color={colors.greenDeep} />} label={chats.data?.isGuide ? 'Messages & guide inbox' : 'Messages'} hint={unread ? `${unread} new` : undefined} onPress={go('/messages')} /> : null}
               <MenuRow icon={<Heart size={18} color={colors.greenDeep} />} label="Saved tours" onPress={go('/account/saved')} />
               <MenuRow icon={<UserRound size={18} color={colors.greenDeep} />} label="Edit profile" onPress={go('/account/profile')} last />
             </MenuGroup>
           </Reveal>
-          <Reveal index={3}>{help}</Reveal>
-          <Reveal index={4}>
-            <MenuGroup title="Account"><MenuRow icon={<LogOut size={18} color={colors.danger} />} label="Log out" danger onPress={logout} last /></MenuGroup>
+          <Reveal index={3}>
+            <MenuGroup title="Guide">
+              {guide.status === 'active' ? <MenuRow icon={<ArrowLeftRight size={18} color={colors.greenDeep} />} label="Switch to guide view" onPress={() => setView('guide')} last /> : null}
+              {guide.status === 'pending' ? <MenuRow icon={<Clock size={18} color={colors.greenDeep} />} label="Guide application" hint="Under review" onPress={() => toast.success('We are reviewing your application. You will see the guide screens here once approved.')} last /> : null}
+              {guide.status === 'rejected' ? <MenuRow icon={<Clock size={18} color={colors.greenDeep} />} label="Guide application" hint="Not approved" onPress={go('/contact')} last /> : null}
+              {guide.status === 'none' || guide.status === 'inactive' ? <MenuRow icon={<MapIcon size={18} color={colors.greenDeep} />} label="Become a guide" onPress={go('/become-guide')} last /> : null}
+            </MenuGroup>
+          </Reveal>
+          <Reveal index={4}>{help}</Reveal>
+          <Reveal index={5}>
+            <MenuGroup title="Account">
+              <MenuRow icon={<LogOut size={18} color={colors.danger} />} label="Log out" danger onPress={logout} />
+              <MenuRow icon={<Trash2 size={18} color={colors.danger} />} label="Delete account" danger onPress={go('/account/delete')} last />
+            </MenuGroup>
           </Reveal>
         </>
       ) : (

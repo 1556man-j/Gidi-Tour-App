@@ -36,7 +36,7 @@ export const getStoreProducts = (): Promise<StoreProduct[]> =>
   env.mock
     ? wait(mock.mockProducts)
     : groq<StoreProduct[]>(
-        `*[_type == "storeProduct"] | order(category asc, title asc){
+        `*[_type == "storeProduct" && !(category == "magazine" && isFree != true)] | order(category asc, title asc){
           _id, category, title, slug, image, description, price, popular, isFree,
           issueNumber, publishDate, sku, variants, stock
         }`
@@ -85,4 +85,4 @@ export const getHomeDestinations = (): Promise<Destination[]> =>
 export const getHomeArticles = (): Promise<Article[]> =>
   env.mock ? wait(mock.mockArticles.slice(0, 2)) : groq<Article[]>(`*[_type == "article"] | order(date desc)[0...2]{ _id, title, slug, image, excerpt, category, destination, readTime, date, featured }`);
 export const getHomeMagazine = (): Promise<StoreProduct[]> =>
-  env.mock ? wait(mock.mockProducts.filter((p) => p.category === 'magazine').slice(0, 2)) : groq<StoreProduct[]>(`*[_type == "storeProduct" && category == "magazine"] | order(popular desc)[0...2]{ _id, category, title, slug, image, popular }`);
+  env.mock ? wait(mock.mockProducts.filter((p) => p.category === 'magazine').slice(0, 2)) : groq<StoreProduct[]>(`*[_type == "storeProduct" && category == "magazine" && isFree == true] | order(popular desc)[0...2]{ _id, category, title, slug, image, popular, isFree }`);

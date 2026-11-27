@@ -4,6 +4,7 @@ import { Link, router, useLocalSearchParams } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Eye, EyeOff, MailWarning } from 'lucide-react-native';
 import { AuthShell, Banner } from '@/components/auth/AuthShell';
+import { AppleButton } from '@/components/AppleButton';
 import { GoogleButton, OrDivider } from '@/components/GoogleButton';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -85,6 +86,7 @@ export default function Login() {
       <Reveal index={2}>
         <OrDivider />
         <GoogleButton redirectTo={redirectTo} />
+        <AppleButton redirectTo={redirectTo} />
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 26 }}>
           <Text v="body" color={colors.muted}>New to Gidi Tour?</Text>
           <Link href={{ pathname: '/signup', params: redirectTo ? { redirectTo } : {} }}><Text style={{ fontFamily: fonts.bold }} color={colors.orange}>Create an account</Text></Link>

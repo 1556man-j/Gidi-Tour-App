@@ -1,17 +1,36 @@
 {
-  "cli": { "version": ">= 12.0.0" },
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
   "build": {
     "preview": {
       "distribution": "internal",
-       "android": {
-    "gradleCommand": ":app:assembleRelease -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease"
-  },
+      "android": {
+        "gradleCommand": ":app:assembleRelease -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease"
+      },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://www.giditour.com",
         "EXPO_PUBLIC_SITE_URL": "https://www.giditour.com",
         "EXPO_PUBLIC_SANITY_PROJECT_ID": "hxcb2tkw",
         "EXPO_PUBLIC_SANITY_DATASET": "production",
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_xxxx",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "723602664885-oup3gscvmj2telfml235088g3rfvih83.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "723602664885-dg55g3e0tn4qs7fpm1lmm5vkmsq081e5.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "723602664885-9riuk5thu835sk77tuftgga1vign6tgn.apps.googleusercontent.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://www.giditour.com",
+        "EXPO_PUBLIC_SITE_URL": "https://www.giditour.com",
+        "EXPO_PUBLIC_SANITY_PROJECT_ID": "hxcb2tkw",
+        "EXPO_PUBLIC_SANITY_DATASET": "production",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_live_51UAeNPEj8BV7i4gwrh9nsnaThLAdbNp2hqgSWDlWpndGc1xituzP2mK7hrrRksM1moUs3eNHmtx1RS7xoaKRbrj2006jzguwQL",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "723602664885-oup3gscvmj2telfml235088g3rfvih83.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "723602664885-dg55g3e0tn4qs7fpm1lmm5vkmsq081e5.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "723602664885-9riuk5thu835sk77tuftgga1vign6tgn.apps.googleusercontent.com"
